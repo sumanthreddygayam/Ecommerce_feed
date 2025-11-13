@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Personalized Feed</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-link">&larr; Back to Home</a>
+            <h1>Your Personalized Feed</h1>
+            <p id="user-greeting">A special collection just for you</p>
+        </header>
+
+        <main class="feed-main">
+            <section class="feed-section">
+                <h2>For You (Based on Similar Users)</h2>
+                <div class="feed-grid" id="for-you-feed">
+                    <div class="loader"></div>
+                </div>
+            </section>
+            
+            <section class="feed-section">
+                <h2>Based on Your Recent Activity</h2>
+                <div class="feed-grid" id="watchlist-feed">
+                    <div class="loader"></div>
+                </div>
+            </section>
+
+            <section class="feed-section">
+                <h2>Trending Now</h2>
+                <div class="feed-grid" id="trending-feed">
+                    <div class="loader"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Helper function to render a list of products into a container
+        function renderProductList(containerId, productList) {
+            const container = document.getElementById(containerId);
+            if (!productList || productList.length === 0) {
+                container.innerHTML = '<p>No recommendations in this category right now.</p>';
+                return;
+            }
+            container.innerHTML = ''; // Clear loader and previous content
+
+            productList.forEach(product => {
+                if (!product) return; // Skip if product details are missing for any reason
+
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <div class="product-category">${product.category || 'N/A'}</div>
+                    <h3>${product.product_name || 'Unnamed Product'}</h3>
+                    <p class="brand">by ${product.brand || 'Unknown Brand'}</p>
+                `;
+                container.appendChild(productCard);
+            });
+        }
+
+        // Main function to fetch the separated feed data
+        async function fetchAndRenderFeed() {
+            try {
+                // Call the simplified API endpoint (no user_id needed)
+                const response = await fetch('/api/feed');
+                
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Render each list into its designated container
+                renderProductList('for-you-feed', data.for_you);
+                renderProductList('watchlist-feed', data.based_on_watchlist);
+                renderProductList('trending-feed', data.trending);
+
+            } catch (error) {
+                const mainContent = document.querySelector('.feed-main');
+                mainContent.innerHTML = `<p class="error">Could not load your feed. Please try again later. <br><small>${error.message}</small></p>`;
+                console.error('Failed to fetch feed:', error);
+            }
+        }
+
+        // Run the function when the page loads
+        document.addEventListener('DOMContentLoaded', fetchAndRenderFeed);
+    </script>
+</body>
+</html>

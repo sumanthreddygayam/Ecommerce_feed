@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecommerce Feed</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        #search-container {
+            margin-bottom: 20px;
+        }
+        #search-bar {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #item-feed {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .item {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+        .item h3 {
+            margin-top: 0;
+        }
+        .item-actions button {
+            margin-right: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .item-actions .cancel {
+            background-color: #ffdddd;
+        }
+        .item-actions .reorder {
+            background-color: #ddffdd;
+        }
+        .item-actions .seen {
+            background-color: #ddddff;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="search-container">
+        <input type="text" id="search-bar" placeholder="Search for a category...">
+    </div>
+
+    <div id="item-feed">
+        </div>
+
+    <script>
+        // --- Placeholder Data ---
+        // Replace this with your actual Purchase_Category data
+        const purchaseCategories = [
+            "Gardening & Outdoors",
+            "Food & Beverages",
+            "Office Supplies",
+            "Groceries",
+            "Luxury Goods",
+            "Baby Products",
+            "Mobile Accessories"
+        ];
+
+        const itemFeed = document.getElementById('item-feed');
+        const searchBar = document.getElementById('search-bar');
+
+        // --- Functions ---
+
+        // Function to render the items in the feed
+        function renderItems(categories) {
+            itemFeed.innerHTML = ''; // Clear the feed
+            categories.forEach(category => {
+                const itemDiv = document.createElement('div');
+                itemDiv.classList.add('item');
+                itemDiv.innerHTML = `
+                    <h3>${category}</h3>
+                    <div class="item-actions">
+                        <button class="cancel" onclick="logAction('Cancel', '${category}')">Cancel</button>
+                        <button class="reorder" onclick="logAction('Reorder', '${category}')">Reorder</button>
+                        <button class="seen" onclick="logAction('Seen', '${category}')">Seen</button>
+                    </div>
+                `;
+                itemFeed.appendChild(itemDiv);
+            });
+        }
+
+        // Function to handle search filtering
+        searchBar.addEventListener('keyup', (e) => {
+            const searchQuery = e.target.value.toLowerCase();
+            const filteredCategories = purchaseCategories.filter(category => {
+                return category.toLowerCase().includes(searchQuery);
+            });
+            renderItems(filteredCategories);
+            logAction('Search', searchQuery); // Log the search query
+        });
+
+        // Function to log user actions
+        function logAction(action, detail) {
+            const timestamp = new Date().toISOString();
+            console.log({
+                timestamp,
+                action,
+                detail
+            });
+            // In a real application, you would send this data to a server
+            // for storage and analysis.
+            // Example of sending data to a server:
+            /*
+            fetch('/log-event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    timestamp,
+                    action,
+                    detail
+                })
+            });
+            */
+        }
+
+        // --- Initial Render ---
+        renderItems(purchaseCategories);
+
+    </script>
+
+</body>
+</html>
